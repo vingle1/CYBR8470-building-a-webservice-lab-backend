@@ -27,7 +27,7 @@ if ENVIRONMENT == 'PROD':
 else:
     DEBUG = True
 
-ALLOWED_HOSTS = ['24.252.6.207', 'localhost','192.168.99.100','192.168.0.4','192.168.0.1']
+ALLOWED_HOSTS = ['localhost','192.168.99.100','137.48.255.12']
 
 
 # Application definition
