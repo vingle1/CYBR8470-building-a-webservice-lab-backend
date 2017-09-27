@@ -30,18 +30,6 @@ class ApiKey(models.Model):
 class ApiKeyAdmin(admin.ModelAdmin):
     list_display = ('owner','key')
 
-class Dog(models.Model):
-    name = models.CharField(max_length=1000, blank=False)
-    age = models.IntegerField(max_length=1000, blank=False)
-    breed = models.ForeignKey(Breed, on_delete=models.CASCADE)
-    gender = models.CharField(max_length=1000, blank=False)
-    color = models.CharField(max_length=1000, blank=False)
-    favoritefood = models.CharField(max_length=1000, blank=False)
-    favoritetoy = models.CharField(max_length=1000, blank=False)
-
-    def __str__(self):
-        return str(self.name)
-
 class Breed(models.Model):
     SIZE_CHOICE = (
         ('tiny', 'Tiny'),
@@ -62,3 +50,15 @@ class Breed(models.Model):
     trainability = models.IntegerField(choices=NUM_CHOICE)
     sheddingamount = models.IntegerField(choices=NUM_CHOICE)
     exerciseneeds = models.IntegerField(choices=NUM_CHOICE)
+
+class Dog(models.Model):
+    name = models.CharField(max_length=1000, blank=False)
+    age = models.IntegerField(max_length=1000, blank=False)
+    breed = models.ForeignKey(Breed, on_delete=models.CASCADE)
+    gender = models.CharField(max_length=1000, blank=False)
+    color = models.CharField(max_length=1000, blank=False)
+    favoritefood = models.CharField(max_length=1000, blank=False)
+    favoritetoy = models.CharField(max_length=1000, blank=False)
+
+    def __str__(self):
+        return str(self.name)
