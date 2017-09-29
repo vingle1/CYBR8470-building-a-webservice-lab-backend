@@ -26,6 +26,7 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.renderers import JSONRenderer
 
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.permissions import *
@@ -39,7 +40,6 @@ from api.pagination import *
 import json, datetime, pytz
 from django.core import serializers
 import requests
-
 
 def home(request):
    """
@@ -202,4 +202,164 @@ class ActivateIFTTT(APIView):
         #log the event in the DB
         newEvent.save()
         print 'New Event Logged'
+        return Response({'success': True}, status=status.HTTP_200_OK)
+
+
+class DogDetail(APIView):
+    permission_classes = (AllowAny,)
+    parser_classes = (parsers.JSONParser,parsers.FormParser)
+    renderer_classes = (renderers.JSONRenderer, )
+
+    #get a single dog detail by an id
+    def get(self, request, id=None, format=None):
+        dog = Dog.objects.get(pk=id)
+        json_data = serializers.serialize('json',[dog])
+        content = {'dog':json_data}
+        return HttpResponse(json_data, content_type='json')
+
+    #delete a dog details
+    def delete(self, request, id):
+        Dog.objects.filter(pk=id).delete()
+        return Response({'success':True}, status=status.HTTP_200_OK)
+
+    #modify existing dog details
+    def put(self,request,id):
+
+        dog = Dog.objects.get(pk=id)
+        dog.name = request.data.get('name')
+        dog.age = int(request.data.get('age'))
+
+        breedname = request.data.get('breed')
+        dog.breed = Breed.objects.get(name=breedname)
+
+        dog.gender = request.data.get('gender')
+        dog.color = request.data.get('color')
+        dog.favoritefood = request.data.get('favoritefood')
+        dog.favoritetoy = request.data.get('favoritetoy')
+
+        try:
+            dog.clean_fields()
+        except ValidationError as e:
+            print e
+            return Response({'success':False, 'error':e}, status=status.HTTP_400_BAD_REQUEST)
+        dog.save()
+        return Response({'success': True}, status=status.HTTP_200_OK)
+
+class DogList(APIView):
+    permission_classes = (AllowAny,)
+    parser_classes = (parsers.JSONParser,parsers.FormParser)
+    renderer_classes = (renderers.JSONRenderer, )
+
+    #get list of all the dogs
+    def get(self, request, format=None):
+        dogs = Dog.objects.all()
+        json_data = serializers.serialize('json', dogs)
+        content = {'dogs': json_data}
+        return HttpResponse(json_data, content_type='json')
+
+    #create new dog information
+    def post(self, request, *args, **kwargs):
+        print 'REQUEST DATA'
+        print str(request.data)
+
+        name = request.data.get('name')
+        age = int(request.data.get('age'))
+        breedname = request.data.get('breed')
+        breed = Breed.objects.get(name=breedname)
+        gender = request.data.get('gender')
+        color = request.data.get('color')
+        favoritefood = request.data.get('favoritefood')
+        favoritetoy = request.data.get('favoritetoy')
+
+        makeDog = Dog(
+            name=name,
+            age=age,
+            breed=breed,
+            gender=gender,
+            color=color,
+            favoritefood=favoritefood,
+            favoritetoy=favoritetoy
+        )
+
+        try:
+            makeDog.clean_fields()
+        except ValidationError as e:
+            print e
+            return Response({'success':False, 'error':e}, status=status.HTTP_400_BAD_REQUEST)
+
+        makeDog.save()
+        return Response({'success': True}, status=status.HTTP_200_OK)
+
+
+class BreedDetail(APIView):
+    permission_classes = (AllowAny,)
+    parser_classes = (parsers.JSONParser,parsers.FormParser)
+    renderer_classes = (renderers.JSONRenderer, )
+
+    def get(self, request, id, format=None):
+        breed = Breed.objects.get(pk=id)
+        json_data = serializers.serialize('json', [breed])
+        content = {'breed': json_data}
+        return HttpResponse(json_data, content_type='json')
+
+    def delete(self, request, id):
+        Breed.objects.get(pk=id).delete()
+        return Response({'success':True}, status=status.HTTP_200_OK)
+
+    def put(self, request, id=None):
+        breed = Breed.objects.get(pk=id)
+        breed.name = request.data.get('name')
+        breed.size = request.data.get('size')
+        breed.friendliness = int(request.data.get('friendliness'))
+        breed.trainability = int(request.data.get('trainability'))
+        breed.sheddingamount = int(request.data.get('sheddingamount'))
+        breed.exerciseneeds = int(request.data.get('exerciseneeds'))
+
+        try:
+            breed.clean_fields()
+        except ValidationError as e:
+            print e
+            return Response({'success':False, 'error':e}, status=status.HTTP_400_BAD_REQUEST)
+        breed.save()
+        return Response({'success': True}, status=status.HTTP_200_OK)
+
+
+class BreedList(APIView):
+    permission_classes = (AllowAny,)
+    parser_classes = (parsers.JSONParser,parsers.FormParser)
+    renderer_classes = (renderers.JSONRenderer, )
+
+    def get(self, request, format=None):
+        breeds = Breed.objects.all()
+        json_data = serializers.serialize('json', breeds)
+        content = {'breeds': json_data}
+        return HttpResponse(json_data, content_type='json')
+
+    def post(self, request, *args, **kwargs):
+        print 'REQUEST DATA'
+        print str(request.data)
+
+        name = request.data.get('name')
+        size = request.data.get('size')
+        friendliness = int(request.data.get('friendliness'))
+        trainability = int(request.data.get('trainability'))
+        sheddingamount = int(request.data.get('sheddingamount'))
+        exerciseneeds = int(request.data.get('exerciseneeds'))
+
+        makeBreed = Breed(
+            name=name,
+            size=size,
+            friendliness=friendliness,
+            trainability=trainability,
+            sheddingamount=sheddingamount,
+            exerciseneeds=exerciseneeds
+        )
+
+        try:
+            makeBreed.clean_fields()
+        except ValidationError as e:
+            print e
+            return Response({'success':False, 'error':e}, status=status.HTTP_400_BAD_REQUEST)
+
+        makeBreed.save()
         return Response({'success': True}, status=status.HTTP_200_OK)

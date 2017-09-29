@@ -30,7 +30,11 @@ class ApiKey(models.Model):
 class ApiKeyAdmin(admin.ModelAdmin):
     list_display = ('owner','key')
 
+
 class Breed(models.Model):
+
+    # The first element in each tuple is the value that will be stored in the database.
+    # The second element will be displayed by the default form widget or in a ModelChoiceField.
     SIZE_CHOICE = (
         ('tiny', 'Tiny'),
         ('small', 'Small'),
@@ -44,21 +48,31 @@ class Breed(models.Model):
         (4,4),
         (5,5),
     )
-    name = models.CharField(max_length=1000, blank=False)
+
+    name = models.CharField(max_length=1000)
     size = models.CharField(max_length=1000, choices=SIZE_CHOICE)
     friendliness = models.IntegerField(choices=NUM_CHOICE)
     trainability = models.IntegerField(choices=NUM_CHOICE)
     sheddingamount = models.IntegerField(choices=NUM_CHOICE)
     exerciseneeds = models.IntegerField(choices=NUM_CHOICE)
 
+    def __str__(self):
+        return str(self.name)
+
+class BreedAdmin(admin.ModelAdmin):
+    list_display = ('id','name')
+
 class Dog(models.Model):
-    name = models.CharField(max_length=1000, blank=False)
-    age = models.IntegerField(max_length=1000, blank=False)
+    name = models.CharField(max_length=1000)
+    age = models.IntegerField()
     breed = models.ForeignKey(Breed, on_delete=models.CASCADE)
-    gender = models.CharField(max_length=1000, blank=False)
-    color = models.CharField(max_length=1000, blank=False)
-    favoritefood = models.CharField(max_length=1000, blank=False)
-    favoritetoy = models.CharField(max_length=1000, blank=False)
+    gender = models.CharField(max_length=1000)
+    color = models.CharField(max_length=1000)
+    favoritefood = models.CharField(max_length=1000)
+    favoritetoy = models.CharField(max_length=1000)
 
     def __str__(self):
         return str(self.name)
+
+class DogAdmin(admin.ModelAdmin):
+    list_display = ('id','name')
