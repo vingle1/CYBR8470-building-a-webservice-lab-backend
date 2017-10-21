@@ -41,6 +41,7 @@ import json, datetime, pytz
 from django.core import serializers
 import requests
 
+
 def home(request):
    """
    Send requests to / to the ember.js clientside app
@@ -104,8 +105,11 @@ class Session(APIView):
 
     def post(self, request, *args, **kwargs):
         # Login
+        print request.POST
         username = request.POST.get('username')
         password = request.POST.get('password')
+        print username
+        print password
         user = authenticate(username=username, password=password)
         if user is not None:
             if user.is_active:
@@ -120,7 +124,8 @@ class Session(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class Events(APIView):
-    permission_classes = (AllowAny,)
+    #permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
     parser_classes = (parsers.JSONParser,parsers.FormParser)
     renderer_classes = (renderers.JSONRenderer, )
 
@@ -166,7 +171,8 @@ class ActivateIFTTT(APIView):
         print 'REQUEST DATA'
         print str(request.data)
 
-        eventtype = request.data.get('eventtype')
+        #eventtype = request.data.get('eventtype')
+        eventtype = bleach.clean(request.data.get('eventtype'))
         timestamp = int(request.data.get('timestamp'))
         requestor = request.META['REMOTE_ADDR']
         api_key = ApiKey.objects.all().first()

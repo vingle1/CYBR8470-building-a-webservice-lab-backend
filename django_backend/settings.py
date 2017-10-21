@@ -25,7 +25,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ENVIRONMENT == 'PROD':
     DEBUG = False
 else:
-    DEBUG = True
+    DEBUG = False
+    # DEBUG = True
 
 ALLOWED_HOSTS = ['localhost','192.168.99.100','137.48.255.12']
 
